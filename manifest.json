@@ -1,0 +1,39 @@
+{
+  "name": "VictorOS — DS & AI Roadmap",
+  "short_name": "VictorOS",
+  "description": "Victor's 12-month Data Science & AI Automation roadmap. Daily lessons, projects, progress tracking.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#08090F",
+  "theme_color": "#0A0F1E",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Today's Lesson",
+      "short_name": "Today",
+      "url": "/?view=today",
+      "description": "Jump to today's lesson"
+    },
+    {
+      "name": "My Progress",
+      "short_name": "Progress",
+      "url": "/?view=progress",
+      "description": "View your progress"
+    }
+  ]
+}
