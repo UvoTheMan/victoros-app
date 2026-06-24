@@ -10,6 +10,7 @@ const Notifications = (() => {
 
   const STORAGE_KEY_HOUR    = 'victoros_notif_hour';
   const STORAGE_KEY_GRANTED = 'victoros_notif_granted';
+  const STORAGE_KEY_LAST_SHOWN = 'victoros_notif_last_shown';
   const DEFAULT_HOUR        = 7; // 7:00 AM
 
   // ─── Register service worker ───
@@ -75,6 +76,11 @@ const Notifications = (() => {
     return day === 0 || day === 6;
   }
 
+  // ─── YYYY-MM-DD for "have we already shown today's reminder?" checks ───
+  function todayDateString() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
   // ─── Build notification body from today's roadmap day ───
   function buildNotifBody(dayData) {
     if (!dayData) return "Today's lesson is waiting. Keep the streak alive! 🔥";
@@ -106,6 +112,7 @@ const Notifications = (() => {
         { action: 'dismiss', title: 'Later'        }
       ]
     });
+    localStorage.setItem(STORAGE_KEY_LAST_SHOWN, todayDateString());
   }
 
   // ─── Schedule the next daily notification ───
@@ -152,6 +159,31 @@ const Notifications = (() => {
     });
   }
 
+  // ─── Catch-up check: did today's reminder already fire? ───
+  // setTimeout-based scheduling does NOT survive the PWA being
+  // closed or the phone being locked for hours — mobile browsers
+  // suspend JS timers in that state. This is the practical mitigation:
+  // every time the app actually opens, check whether today's reminder
+  // time has already passed and hasn't fired yet, and if so, fire it
+  // immediately instead of silently never showing it.
+  async function catchUpIfMissed(dayDataSource) {
+    if (isTodayWeekend()) return;
+    if (Notification.permission !== 'granted') return;
+
+    const lastShown = localStorage.getItem(STORAGE_KEY_LAST_SHOWN);
+    const today = todayDateString();
+    if (lastShown === today) return; // already shown today, nothing to do
+
+    const hour = getSavedHour();
+    const now = new Date();
+    const scheduledTime = new Date();
+    scheduledTime.setHours(hour, 0, 0, 0);
+
+    if (now >= scheduledTime) {
+      await fireNotification(dayDataSource);
+    }
+  }
+
   // ─── Full init: register SW + prompt + schedule ───
   async function init(dayData) {
     await registerSW();
@@ -159,6 +191,7 @@ const Notifications = (() => {
     const status = getPermissionStatus();
 
     if (status === 'granted') {
+      await catchUpIfMissed(dayData);
       scheduleDaily(dayData);
     }
     // Prompt is shown by app.js on first launch
@@ -205,6 +238,7 @@ const Notifications = (() => {
     getSavedHour,
     getPermissionStatus,
     updateToggleBtn,
+    catchUpIfMissed,
   };
 
 })();

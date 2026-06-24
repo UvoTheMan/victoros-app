@@ -3,7 +3,7 @@
 // Handles: offline caching + push notifications
 // ============================================================
 
-const CACHE_NAME = 'victoros-v1';
+const CACHE_NAME = 'victoros-v2';
 
 const STATIC_ASSETS = [
   '/',
@@ -21,6 +21,19 @@ const STATIC_ASSETS = [
   '/data/week5.js',
   '/data/week6.js',
   '/data/week7.js',
+  '/data/week8.js',
+  '/data/week9.js',
+  '/data/week10.js',
+  '/data/week11.js',
+  '/data/week12.js',
+  '/data/week13.js',
+  '/data/week14.js',
+  '/data/week15.js',
+  '/data/week16.js',
+  '/data/week17.js',
+  '/data/week18.js',
+  '/data/week19.js',
+  '/data/week20.js',
   '/data/phase2-resources.js',
   '/manifest.json',
 ];
