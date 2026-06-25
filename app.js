@@ -206,7 +206,7 @@ const App = (() => {
     renderMistakes(day.commonMistakes || []);
 
     // Exercises
-    renderExercises(day.exercises || []);
+    renderExercises(day.exercises || [], day);
 
     // Project block (Fridays)
     if (day.type === 'project' && day.projectBrief) {
@@ -284,7 +284,7 @@ const App = (() => {
     });
   }
 
-  function renderExercises(exercises) {
+  function renderExercises(exercises, day) {
     const list = document.getElementById('exercises-list');
     list.innerHTML = '';
     if (!exercises.length) {
@@ -293,11 +293,44 @@ const App = (() => {
     }
     toggleBlock('exercises-block', true);
 
+    const hasWorkspace = typeof CodeWorkspace !== 'undefined';
+    const language = hasWorkspace
+      ? CodeWorkspace.inferLanguage(day.example || '')
+      : 'python';
+
     exercises.forEach((ex, i) => {
       const li = document.createElement('li');
-      li.innerHTML = `<span class="exercise-num">${i + 1}.</span><span>${escapeHtml(ex)}</span>`;
+      const exerciseId = `${day.id}-ex${i + 1}`;
+      // exerciseAnswers is an optional, additive field on day objects —
+      // parallel-indexed to exercises[]. Not backfilled into existing
+      // days yet, so this is null for now and the toggle simply won't show.
+      const answer = (day.exerciseAnswers && day.exerciseAnswers[i]) || null;
+
+      const workspaceHtml = hasWorkspace
+        ? CodeWorkspace.renderCodeWorkspace({
+            scope: 'exercise',
+            id: exerciseId,
+            starterCode: '',
+            language,
+            expectedOutput: answer,
+            label: 'Write your solution',
+          })
+        : '';
+
+      li.innerHTML = `
+        <div class="exercise-row">
+          <span class="exercise-num">${i + 1}.</span><span>${escapeHtml(ex)}</span>
+        </div>
+        ${workspaceHtml}
+      `;
       list.appendChild(li);
     });
+
+    if (hasWorkspace) {
+      exercises.forEach((_, i) => {
+        CodeWorkspace.wireCodeWorkspace('exercise', `${day.id}-ex${i + 1}`);
+      });
+    }
   }
 
   function renderResources(resources) {
