@@ -115,6 +115,30 @@ const CodeWorkspace = (() => {
     return String(arg);
   }
 
+  // ─── Guess the language of a code snippet ───
+  // Used so the workspace can label/runnable-flag correctly without
+  // a hardcoded week-number → language lookup table that would need
+  // editing every time a new phase/language is added.
+  function inferLanguage(code) {
+    if (!code) return 'python'; // safe default given the roadmap so far
+    const sample = code.slice(0, 800);
+
+    if (/\b(SELECT|INSERT INTO|CREATE TABLE|UPDATE|DELETE FROM)\b/i.test(sample)) {
+      return 'sql';
+    }
+    if (/^#!\/bin\/(bash|sh)/.test(sample) || /\b(grep|awk|chmod|chown|mkdir -p)\b/.test(sample)) {
+      return 'bash';
+    }
+    if (/\b(console\.log|const |let |=>|function\s*\()/.test(sample) &&
+        !/\bdef\s|:\s*\n|print\(/.test(sample)) {
+      return 'javascript';
+    }
+    if (/\b(def\s|import\s|print\(|elif\b|self\.)/.test(sample)) {
+      return 'python';
+    }
+    return 'python';
+  }
+
   function escapeHtml(str) {
     return String(str)
       .replace(/&/g, '&amp;')
@@ -263,6 +287,7 @@ const CodeWorkspace = (() => {
     resetCodeWorkspace,
     copyCodeWorkspaceValue,
     runJavaScriptWorkspace,
+    inferLanguage,
     renderCodeWorkspace,
     wireCodeWorkspace,
   };

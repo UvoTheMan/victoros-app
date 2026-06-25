@@ -199,6 +199,9 @@ const App = (() => {
     document.getElementById('example-code').textContent = day.example || '';
     toggleBlock('example-block', !!day.example);
 
+    // "Try it yourself" code workspace (under the example)
+    renderExampleWorkspace(day);
+
     // Common mistakes
     renderMistakes(day.commonMistakes || []);
 
@@ -225,6 +228,32 @@ const App = (() => {
 
   function getDayIndexOverall(dayId) {
     return state.allDays.findIndex(d => d.id === dayId);
+  }
+
+  // Renders the "Try it yourself" workspace under the day's example.
+  // Guarded so the app still works fine if codeworkspace.js failed to
+  // load for any reason (e.g. offline on first visit, cache hiccup).
+  function renderExampleWorkspace(day) {
+    const container = document.getElementById('example-workspace-container');
+    if (!container) return;
+
+    if (typeof CodeWorkspace === 'undefined' || !day.example) {
+      container.innerHTML = '';
+      return;
+    }
+
+    const language = CodeWorkspace.inferLanguage(day.example);
+
+    container.innerHTML = CodeWorkspace.renderCodeWorkspace({
+      scope: 'example',
+      id: day.id,
+      starterCode: day.example,
+      language,
+      expectedOutput: day.expectedOutput || null,
+      label: 'Try it yourself',
+    });
+
+    CodeWorkspace.wireCodeWorkspace('example', day.id);
   }
 
   function toggleBlock(blockId, show) {
