@@ -1,18 +1,18 @@
 // ============================================================
 // sw.js — VictorOS Service Worker
-// Handles: offline caching + push notifications
+// Handles: offline caching
 // ============================================================
 
-const CACHE_NAME = 'victoros-v2';
+const CACHE_NAME = 'victoros-v4';
 
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/styles.css',
   '/app.js',
-  '/notifications.js',
   '/notes.js',
   '/github.js',
+  '/codeworkspace.js',
   '/data/roadmap.js',
   '/data/week1.js',
   '/data/week2.js',
@@ -87,79 +87,4 @@ self.addEventListener('fetch', event => {
       }
     })
   );
-});
-
-// ─── PUSH: receive notification from server ───
-self.addEventListener('push', event => {
-  let data = {
-    title: '📚 VictorOS — Study Time',
-    body: "Today's lesson is waiting. Keep the streak alive! 🔥",
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
-  };
-
-  if (event.data) {
-    try {
-      data = { ...data, ...event.data.json() };
-    } catch (e) {
-      data.body = event.data.text();
-    }
-  }
-
-  event.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body,
-      icon: data.icon,
-      badge: data.badge,
-      tag: 'victoros-daily',        // replaces old notification
-      renotify: true,
-      vibrate: [200, 100, 200],
-      data: { url: data.url || '/' },
-      actions: [
-        { action: 'open', title: '📖 Open App' },
-        { action: 'dismiss', title: 'Later' }
-      ]
-    })
-  );
-});
-
-// ─── NOTIFICATION CLICK: open or focus the app ───
-self.addEventListener('notificationclick', event => {
-  event.notification.close();
-
-  if (event.action === 'dismiss') return;
-
-  const targetUrl = event.notification.data?.url || '/';
-
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true })
-      .then(clientList => {
-        // If app already open — focus it
-        for (const client of clientList) {
-          if (client.url.includes(self.location.origin) && 'focus' in client) {
-            return client.focus();
-          }
-        }
-        // Otherwise open a new window
-        if (clients.openWindow) {
-          return clients.openWindow(targetUrl);
-        }
-      })
-  );
-});
-
-// ─── MESSAGE: triggered from app to schedule local notification ───
-// Used as fallback when no push server is available
-self.addEventListener('message', event => {
-  if (event.data?.type === 'SCHEDULE_NOTIFICATION') {
-    const { title, body, delay } = event.data;
-    setTimeout(() => {
-      self.registration.showNotification(title, {
-        body,
-        icon: '/icons/icon-192.png',
-        tag: 'victoros-daily',
-        vibrate: [200, 100, 200],
-      });
-    }, delay || 0);
-  }
 });

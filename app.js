@@ -1,7 +1,7 @@
 // ============================================================
 // app.js — VictorOS Core Application Logic
 // Handles: routing, rendering, state, day navigation,
-//          tying together notifications.js, notes.js, github.js
+//          tying together notes.js, github.js
 // ============================================================
 
 const App = (() => {
@@ -560,45 +560,6 @@ const App = (() => {
   }
 
   // ============================================================
-  // RENDERING — NOTES VIEW
-  // ============================================================
-
-  async function renderNotes(query = '') {
-    const container = document.getElementById('notes-list');
-    container.innerHTML = '<p class="loading" style="color:var(--text-muted)">Loading notes...</p>';
-
-    try {
-      const notes = query ? await Notes.search(query) : await Notes.loadAll();
-
-      if (!notes.length) {
-        container.innerHTML = `<div class="empty-notes">
-          ${query ? `No notes match "${escapeHtml(query)}"` : 'No notes yet. Start writing on any day!'}
-        </div>`;
-        return;
-      }
-
-      container.innerHTML = '';
-      notes.forEach(note => {
-        const item = document.createElement('div');
-        item.className = 'note-archive-item';
-        const dateStr = note.date ? new Date(note.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
-        item.innerHTML = `
-          <div class="note-item-date">${dateStr} · ${escapeHtml(note.dayId)}</div>
-          <div class="note-item-topic">${escapeHtml(note.topic || '')}</div>
-          <div class="note-item-preview">${escapeHtml(note.content || '')}</div>
-        `;
-        item.addEventListener('click', () => {
-          setCurrentDayId(note.dayId);
-          switchView('today');
-        });
-        container.appendChild(item);
-      });
-    } catch (err) {
-      container.innerHTML = '<div class="empty-notes">Error loading notes.</div>';
-    }
-  }
-
-  // ============================================================
   // RENDERING — PROGRESS VIEW
   // ============================================================
 
@@ -684,7 +645,6 @@ const App = (() => {
     if (viewName === 'today')    renderToday();
     if (viewName === 'week')     renderWeek();
     if (viewName === 'roadmap')  renderRoadmap();
-    if (viewName === 'notes')    renderNotes();
     if (viewName === 'progress') renderProgress();
   }
 
@@ -769,11 +729,6 @@ const App = (() => {
     document.getElementById('prev-week-btn').addEventListener('click', () => navigateWeek(-1));
     document.getElementById('next-week-btn').addEventListener('click', () => navigateWeek(1));
 
-    // Notes search
-    document.getElementById('notes-search').addEventListener('input', (e) => {
-      renderNotes(e.target.value);
-    });
-
     // GitHub push (topbar icon)
     document.getElementById('github-push-btn').addEventListener('click', handleGithubPush);
 
@@ -786,37 +741,9 @@ const App = (() => {
       document.getElementById('github-setup').classList.add('hidden');
     });
 
-    // Notification permission overlay
-    document.getElementById('allow-notif-btn').addEventListener('click', async () => {
-      const granted = await Notifications.requestPermission();
-      document.getElementById('notif-prompt').classList.add('hidden');
-      if (granted) {
-        const day = findDay(state.currentDayId);
-        Notifications.scheduleDaily(() => findDay(state.currentDayId));
-      }
-      Notifications.updateToggleBtn();
-    });
-    document.getElementById('deny-notif-btn').addEventListener('click', () => {
-      document.getElementById('notif-prompt').classList.add('hidden');
-    });
-
     // Install overlay
-    document.getElementById('enable-notifications-btn').addEventListener('click', () => {
-      document.getElementById('install-overlay').classList.add('hidden');
-      document.getElementById('notif-prompt').classList.remove('hidden');
-    });
     document.getElementById('skip-install-btn').addEventListener('click', () => {
       document.getElementById('install-overlay').classList.add('hidden');
-    });
-
-    // Notification toggle button in Progress view
-    document.getElementById('notif-toggle-btn').addEventListener('click', async () => {
-      const status = Notifications.getPermissionStatus();
-      if (status === 'default') {
-        document.getElementById('notif-prompt').classList.remove('hidden');
-      } else if (status === 'denied') {
-        alert('Notifications are blocked. Please enable them in your browser settings.');
-      }
     });
   }
 
@@ -845,12 +772,6 @@ const App = (() => {
     switchView('today');
 
     showFirstLaunchOverlay();
-
-    // Initialise notifications with a LIVE getter so the notification
-    // body always reflects whatever day is current, not boot-time state
-    if (typeof Notifications !== 'undefined') {
-      Notifications.init(() => findDay(state.currentDayId));
-    }
   }
 
   // ─── Public API ───
