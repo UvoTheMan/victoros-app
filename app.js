@@ -256,6 +256,22 @@ const App = (() => {
     CodeWorkspace.wireCodeWorkspace('example', day.id);
   }
 
+  // Renders the global Code Lab / scratchpad view. Built once per
+  // visit to the Lab tab so the language dropdown + saved draft are
+  // always fresh.
+  function renderLabView() {
+    const container = document.getElementById('lab-container');
+    if (!container) return;
+
+    if (typeof CodeWorkspace === 'undefined') {
+      container.innerHTML = '<p class="workspace-note">Code Lab failed to load. Try refreshing the app.</p>';
+      return;
+    }
+
+    container.innerHTML = CodeWorkspace.renderGlobalCodeLab();
+    CodeWorkspace.wireGlobalCodeLab();
+  }
+
   function toggleBlock(blockId, show) {
     const el = document.getElementById(blockId);
     if (!el) return;
@@ -708,6 +724,7 @@ const App = (() => {
     if (viewName === 'week')     renderWeek();
     if (viewName === 'roadmap')  renderRoadmap();
     if (viewName === 'progress') renderProgress();
+    if (viewName === 'lab')      renderLabView();
   }
 
   // ============================================================

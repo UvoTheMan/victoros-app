@@ -3,7 +3,7 @@
 // Handles: offline caching
 // ============================================================
 
-const CACHE_NAME = 'victoros-v6';
+const CACHE_NAME = 'victoros-v8';
 
 const STATIC_ASSETS = [
   '/',
@@ -71,8 +71,10 @@ self.addEventListener('fetch', event => {
     caches.match(event.request).then(cached => {
       if (cached) return cached;
       return fetch(event.request).then(response => {
-        // Cache new successful responses
-        if (response && response.status === 200) {
+        // Cache new successful responses — including cross-origin
+        // ones (e.g. the sql.js CDN files), which can come back as
+        // "opaque" (status 0) rather than a readable 200.
+        if (response && (response.status === 200 || response.type === 'opaque')) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then(cache => {
             cache.put(event.request, clone);
