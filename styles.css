@@ -989,6 +989,14 @@ a.resource-title:hover { color: var(--teal); }
   font-weight: 600;
 }
 
+.lab-dataset-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
 .phase-block {
   background: var(--bg-card);
   border: 1px solid var(--border);
