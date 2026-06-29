@@ -610,6 +610,7 @@ const App = (() => {
               <span class="week-row-topic">${escapeHtml(wt.replace(/^W\d+:\s*/, ''))}</span>
             </div>`;
           }).join('')}
+          ${renderPhaseLabSection(phase)}
         </div>
       `;
       container.appendChild(block);
@@ -634,6 +635,65 @@ const App = (() => {
         state.currentWeek = weekNum;
         switchView('week');
       });
+    });
+
+    // Wire up each phase's lab workspace + Mark Complete button
+    PHASES.forEach(phase => wirePhaseLabSection(phase));
+  }
+
+  // Builds the "Phase Lab" HTML for one phase — a required-practice
+  // checklist (drawn straight from phase.skills, no hardcoded
+  // per-phase content needed) plus one shared code workspace.
+  function renderPhaseLabSection(phase) {
+    const skills = phase.skills || [];
+    const completeKey = `victoros_phase_complete_${phase.id}`;
+    const isComplete = localStorage.getItem(completeKey) === '1';
+
+    const hasWorkspace = typeof CodeWorkspace !== 'undefined';
+    const language = hasWorkspace
+      ? CodeWorkspace.inferLanguage(skills.join(' ') + ' ' + (phase.goal || ''))
+      : 'python';
+
+    const workspaceHtml = hasWorkspace
+      ? CodeWorkspace.renderCodeWorkspace({
+          scope: 'phase',
+          id: phase.id,
+          starterCode: '',
+          language,
+          label: `Phase ${phase.id} required practice`,
+        })
+      : '';
+
+    return `
+      <div class="phase-lab" id="phase-lab-${phase.id}">
+        <h4 class="phase-lab-title">🧪 Phase Lab — Required Practice</h4>
+        ${skills.length ? `
+          <ul class="phase-lab-checklist">
+            ${skills.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
+          </ul>
+        ` : ''}
+        <div id="phase-lab-workspace-${phase.id}">${workspaceHtml}</div>
+        <button class="ws-btn phase-lab-complete-btn ${isComplete ? 'is-complete' : ''}" data-phase-complete="${phase.id}">
+          ${isComplete ? '✓ Phase Lab Complete' : 'Mark Phase Lab Complete'}
+        </button>
+      </div>
+    `;
+  }
+
+  function wirePhaseLabSection(phase) {
+    if (typeof CodeWorkspace !== 'undefined') {
+      CodeWorkspace.wireCodeWorkspace('phase', phase.id);
+    }
+
+    const btn = document.querySelector(`[data-phase-complete="${phase.id}"]`);
+    if (!btn) return;
+
+    const completeKey = `victoros_phase_complete_${phase.id}`;
+    btn.addEventListener('click', () => {
+      const nowComplete = localStorage.getItem(completeKey) !== '1';
+      localStorage.setItem(completeKey, nowComplete ? '1' : '0');
+      btn.textContent = nowComplete ? '✓ Phase Lab Complete' : 'Mark Phase Lab Complete';
+      btn.classList.toggle('is-complete', nowComplete);
     });
   }
 

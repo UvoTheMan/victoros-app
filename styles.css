@@ -1097,6 +1097,57 @@ a.resource-title:hover { color: var(--teal); }
   color: var(--text-muted);
 }
 
+.phase-lab {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border);
+}
+
+.phase-lab-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.phase-lab-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.phase-lab-checklist li {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  padding-left: 18px;
+  position: relative;
+  line-height: 1.5;
+}
+
+.phase-lab-checklist li::before {
+  content: "□";
+  position: absolute;
+  left: 0;
+  color: var(--violet);
+}
+
+.phase-lab-complete-btn {
+  width: 100%;
+  margin-top: 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.phase-lab-complete-btn.is-complete {
+  background: var(--teal-dim);
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
 /* ─── PROGRESS VIEW ─── */
 .stats-grid {
   display: grid;

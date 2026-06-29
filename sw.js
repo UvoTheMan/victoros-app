@@ -3,7 +3,7 @@
 // Handles: offline caching
 // ============================================================
 
-const CACHE_NAME = 'victoros-v10';
+const CACHE_NAME = 'victoros-v11';
 
 const STATIC_ASSETS = [
   '/',
