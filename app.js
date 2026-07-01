@@ -29,6 +29,10 @@ const App = (() => {
     if (typeof WEEK18 !== 'undefined') days = days.concat(WEEK18);
     if (typeof WEEK19 !== 'undefined') days = days.concat(WEEK19);
     if (typeof WEEK20 !== 'undefined') days = days.concat(WEEK20);
+    if (typeof WEEK21 !== 'undefined') days = days.concat(WEEK21);
+    if (typeof WEEK22 !== 'undefined') days = days.concat(WEEK22);
+    if (typeof WEEK23 !== 'undefined') days = days.concat(WEEK23);
+    if (typeof WEEK24 !== 'undefined') days = days.concat(WEEK24);
     // Future phases get added here as they're built
     return days;
   }

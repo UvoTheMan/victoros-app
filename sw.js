@@ -3,7 +3,7 @@
 // Handles: offline caching
 // ============================================================
 
-const CACHE_NAME = 'victoros-v11';
+const CACHE_NAME = 'victoros-v12';
 
 const STATIC_ASSETS = [
   '/',
@@ -34,6 +34,10 @@ const STATIC_ASSETS = [
   '/data/week18.js',
   '/data/week19.js',
   '/data/week20.js',
+  '/data/week21.js',
+  '/data/week22.js',
+  '/data/week23.js',
+  '/data/week24.js',
   '/data/phase2-resources.js',
   '/manifest.json',
 ];
